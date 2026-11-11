@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guardalo · Prototipo UX/UI</title>
+<meta name="description" content="Prototipo navegable de una plataforma P2P para alquilar espacio de guardado urbano (bauleras, cocheras, placares).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="page">
+  <aside class="side">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <div>
+        <h1 id="appName">Guardalo</h1>
+        <p class="tag">Prototipo navegable · Punto 3.3 Maquetado UX/UI</p>
+      </div>
+    </div>
+    <p class="intro">Plataforma P2P para guardar tus cosas en bauleras, cocheras y placares de tu barrio. Elegí un rol y recorré el flujo, o saltá a cualquier pantalla desde el índice.</p>
+    <div class="roles" role="tablist" aria-label="Rol">
+      <button class="role" data-role="cliente" role="tab"><i class="ti ti-package" aria-hidden="true"></i>Soy cliente</button>
+      <button class="role" data-role="anfitrion" role="tab"><i class="ti ti-home-2" aria-hidden="true"></i>Soy anfitrión</button>
+    </div>
+    <nav class="index" id="index" aria-label="Índice de pantallas"></nav>
+    <p class="foot">Datos, precios y espacios ficticios. Código abierto bajo licencia MIT.</p>
+  </aside>
+  <main class="stage">
+    <div class="phone" id="phone">
+      <div class="status"><span id="clock">9:41</span><span class="notch"></span><span><i class="ti ti-wifi" aria-hidden="true"></i> <i class="ti ti-battery-3" aria-hidden="true"></i></span></div>
+      <div class="screen" id="screen" tabindex="-1"></div>
+      <nav class="tabs" id="tabs" aria-label="Navegación de la app"></nav>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <p class="code" id="code"></p>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
