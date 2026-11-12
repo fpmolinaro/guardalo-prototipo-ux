@@ -8,15 +8,16 @@ Lo armamos para el **punto 3.3 (Maquetado UX/UI)** del trabajo práctico de la m
 
 ## Qué incluye
 
-- **26 pantallas** con la misma numeración que el documento del TP:
+- **27 vistas** con la misma numeración que el documento del TP:
   - **R-01 y R-02:** registro y verificación de identidad (DNI y selfie), comunes a los dos roles.
   - **C-01 a C-12:** recorrido del cliente: inventario, fechas, mapa, ficha, logística, pago, reserva, chat, check-in y check-out (el chat comparte el código C-10 con "Mis reservas").
-  - **A-01 a A-11:** recorrido del anfitrión: asistente de publicación en 5 pasos, panel, chat, solicitudes, check-in y cobros.
+  - **A-01 a A-11:** recorrido del anfitrión: asistente de publicación en 5 pasos, panel, mensajes (consultas y clientes), solicitudes, check-in, check-out y cobros.
 - **Lógica de negocio funcionando:**
   - Equivalencia de objetos en cajas y cálculo de volumen.
   - Filtro de espacios donde entra todo el pedido (por volumen, por medida, por objetos aceptados y por estadía).
   - Descuentos por días, por cajas o combinados, aplicando el mayor.
   - Seguro de transporte del 1,5 % sobre el valor declarado.
+  - Tarifa no reembolsable opcional, con 10 % de descuento adicional.
   - Cargo del 3 % sobre alquiler más envío y comisión del 12 % al anfitrión.
   - Capacidad del espacio en cajas a partir de las medidas netas.
   - Chat que oculta teléfonos, mails, CBU, alias y enlaces.

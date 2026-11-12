@@ -23,7 +23,7 @@ const SPACES = [
   { id: 1, name: 'Baulera en Palermo', tipo: 'Baulera', barrio: 'Palermo', dims: [2, 1.5, 2], usado: 0, x: 38, y: 40,
     prices: { S: 250, M: 400, L: 600, valija: 550, silla: 1000, colchon: 1500, bici: 2000 }, acepta: ['valija', 'silla', 'colchon', 'bici'],
     modo: 'inmediata', min: 7, max: null, hin: 'Lun a sáb · 9 a 19 h', hout: 'Lun a sáb · 9 a 19 h', recep: 'Dentro del espacio',
-    disc: [{ t: 'dias', dias: 28, pct: 15 }, { t: 'combo', dias: 28, cajas: 6, pct: 20 }], rating: 4.9, rev: 23, anf: 'Laura', corta: 'Moderada', larga: 'Firme',
+    disc: [{ t: 'dias', dias: 28, pct: 15 }, { t: 'combo', dias: 28, cajas: 6, pct: 20 }], rating: 4.9, rev: 23, anf: 'Laura', corta: 'Moderada', larga: 'Firme', noReemb: true,
     seg: 'Edificio con portería y cámaras' },
   { id: 2, name: 'Cochera en Colegiales', tipo: 'Cochera', barrio: 'Colegiales', dims: [2.4, 2.5, 4.5], usado: 14, x: 22, y: 22,
     prices: { S: 200, M: 330, L: 480, valija: 480, silla: 900, colchon: 1300, bici: 1600 }, acepta: ['valija', 'silla', 'bici'],
@@ -36,7 +36,7 @@ const SPACES = [
   { id: 4, name: 'Habitación en Villa Crespo', tipo: 'Habitación', barrio: 'Villa Crespo', dims: [2.5, 3, 3], usado: 6, x: 70, y: 64,
     prices: { S: 280, M: 450, L: 680, valija: 620, silla: 1150, colchon: 1700, bici: 2200 }, acepta: ['valija', 'silla', 'colchon', 'bici'],
     modo: 'inmediata', min: 1, max: 60, hin: 'Sáb y dom · 10 a 14 h', hout: 'Sáb y dom · 10 a 14 h', recep: 'Dentro del espacio',
-    disc: [{ t: 'dias', dias: 7, pct: 5 }], rating: 4.6, rev: 15, anf: 'Diego', corta: 'Limitada', larga: 'Firme', seg: 'Casa con alarma' },
+    disc: [{ t: 'dias', dias: 7, pct: 5 }], rating: 4.6, rev: 15, anf: 'Diego', corta: 'Limitada', larga: 'Firme', noReemb: true, seg: 'Casa con alarma' },
   { id: 5, name: 'Baulera en Núñez', tipo: 'Baulera', barrio: 'Núñez', dims: [1, 1, 0.9], usado: 0.2, x: 50, y: 82,
     prices: { S: 210, M: 350, L: 520, valija: 500, silla: 0, colchon: 0, bici: 0 }, acepta: ['valija'],
     modo: 'aprobacion', min: 14, max: null, hin: 'Lun a vie · 10 a 18 h', hout: 'Lun a vie · 10 a 18 h', recep: 'En la puerta del inmueble',
@@ -49,7 +49,7 @@ const S = {
   desde: '2026-11-20', hasta: '2026-12-20', sinFecha: false, zona: 'Palermo',
   sel: 1, verified: false, docs: { frente: false, dorso: false, selfie: false },
   logistica: 'propia', operador: null, envioFecha: '2026-11-20', envioHora: '10 a 12 h',
-  kits: { S: 0, M: 0, L: 0 }, comprobante: 'B', reserva: null, chatIn: '',
+  kits: { S: 0, M: 0, L: 0 }, comprobante: 'B', noReemb: false, retiroOp: null, conv: 'Federico', reserva: null, chatIn: '',
   chat: [
     { me: true, t: 'Hola Laura, ¿la baulera tiene luz? Quiero guardar una bici.' },
     { me: false, t: 'Hola, sí, tiene luz y entra perfecto una bici colgada en la pared.' },
@@ -59,9 +59,9 @@ const S = {
     dias: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'], hin: '9 a 19 h', hout: '9 a 19 h', min: 7, max: '', recep: 'dentro',
     prices: { S: 250, M: 400, L: 600, valija: 550, silla: 1000, colchon: 1500, bici: 2000 },
     disc: [{ t: 'dias', dias: 28, cajas: 6, pct: 15 }, { t: 'combo', dias: 28, cajas: 6, pct: 20 }],
-    modo: 'inmediata', corta: 'Moderada', larga: 'Firme', acepta: { valija: true, silla: true, colchon: true, bici: true },
+    modo: 'inmediata', corta: 'Moderada', larga: 'Firme', noReemb: true, acepta: { valija: true, silla: true, colchon: true, bici: true },
     prohibidos: ['Perecederos', 'Inflamables', 'Animales'], published: false, solicitud: 'pendiente', envioOk: false,
-    checkin: { qr: false, fotos: 0, talles: false } },
+    checkin: { qr: false, fotos: 0, talles: false }, checkout: { qr: false, fotos: 0 }, etapa: 'in' },
 };
 
 /* ---------- utilidades ---------- */
@@ -108,7 +108,8 @@ function quote(sp = space()) {
   const bruto = items.reduce((a, i) => a + i.v, 0);
   const disc = bestDisc(sp);
   const desc = disc ? bruto * disc.pct / 100 : 0;
-  const alquiler = bruto - desc;
+  const nr = S.noReemb && sp.noReemb ? (bruto - desc) * 0.1 : 0;
+  const alquiler = bruto - desc - nr;
   const op = S.logistica === 'transporte' && S.operador ? OPERADORES.find((o) => o.id === S.operador) : null;
   const flete = op ? op.flete : 0;
   const seguro = op ? S.valor * 0.015 : 0;
@@ -116,7 +117,7 @@ function quote(sp = space()) {
   const cargo = (alquiler + envio) * 0.03;
   const kits = ['S', 'M', 'L'].reduce((a, k) => a + S.kits[k] * KIT[k], 0);
   const total = alquiler + envio + cargo + kits;
-  return { items, bruto, disc, desc, alquiler, flete, seguro, envio, cargo, kits, total, comision: alquiler * 0.12 };
+  return { items, bruto, disc, desc, nr, alquiler, flete, seguro, envio, cargo, kits, total, comision: alquiler * 0.12 };
 }
 
 /* ---------- piezas visuales ---------- */
@@ -274,6 +275,7 @@ reg('C-05', 'cliente', 'Ficha del espacio', () => {
     <div class="row"><i class="ti ti-login-2"></i><span><b>Check-in:</b> ${sp.hin}</span></div>
     <div class="row"><i class="ti ti-logout-2"></i><span><b>Check-out:</b> ${sp.hout}</span></div>
     <div class="row"><i class="ti ti-door-enter"></i><span><b>Recepción:</b> ${sp.recep.toLowerCase()}</span></div>
+    <div class="row"><i class="ti ti-calendar-check"></i><span><b>Disponibilidad:</b> tiene lugar para tu lista ${S.sinFecha ? `desde el ${fecha(S.desde)}` : `del ${fecha(S.desde)} al ${fecha(S.hasta)}`}</span></div>
     <div class="row"><i class="ti ti-calendar"></i><span><b>Estadía:</b> mínimo ${sp.min} días${sp.max ? `, máximo ${sp.max}` : ''}</span></div>
     <div class="row"><i class="ti ti-ban"></i><span><b>No se aceptan:</b> perecederos, inflamables, animales</span></div>
   </div>
@@ -314,6 +316,7 @@ reg('C-07', 'cliente', 'Checkout', () => {
   <div class="card">
     ${q.items.map((i) => `<div class="line"><span>${i.n}<br><span class="xs muted">${i.c}</span></span><span>${money(i.v)}</span></div>`).join('')}
     ${q.disc ? `<div class="line" style="color:var(--ok)"><span>Descuento ${q.disc.pct} %<br><span class="xs">${discLabel(q.disc)}</span></span><span>– ${money(q.desc)}</span></div>` : ''}
+    ${q.nr ? `<div class="line" style="color:var(--ok)"><span>Tarifa no reembolsable (10 %)</span><span>– ${money(q.nr)}</span></div>` : ''}
     ${q.envio ? `<div class="line"><span>Transporte: flete</span><span>${money(q.flete)}</span></div><div class="line"><span>Transporte: seguro 1,5 %<br><span class="xs muted">sobre ${money(S.valor)} declarados</span></span><span>${money(q.seguro)}</span></div>` : ''}
     <div class="line"><span>Cargo de servicio y seguro del guardado<br><span class="xs muted">3 % sobre alquiler${q.envio ? ' + envío' : ''}</span></span><span>${money(q.cargo)}</span></div>
     ${q.kits ? `<div class="line"><span>Kits de cajas</span><span>${money(q.kits)}</span></div>` : ''}
@@ -321,10 +324,13 @@ reg('C-07', 'cliente', 'Checkout', () => {
   </div>
   <div class="sec">¿Necesitás cajas?</div>
   <div class="card" style="padding:4px 14px">${['S', 'M', 'L'].map((k) => `<div class="boxrow"><div style="display:grid;place-items:center">${boxSVG(k)}</div><div><div class="b">Caja ${k}</div><div class="xs muted">${money(KIT[k])} c/u</div></div>${stepper('kit' + k, S.kits[k], 'kit ' + k)}</div>`).join('')}</div>
+  ${sp.noReemb ? `<div class="sec">Tarifa</div><div class="stack">
+    <button class="radio" aria-pressed="${!S.noReemb}" data-act="nr" data-arg="0"><i class="ti ti-arrow-back-up"></i><div><div class="b">Con reembolso</div><div class="small muted">Política ${sp.corta.toLowerCase()} para estadías cortas y ${sp.larga.toLowerCase()} de larga duración.</div></div></button>
+    <button class="radio" aria-pressed="${S.noReemb}" data-act="nr" data-arg="1"><i class="ti ti-discount"></i><div><div class="b">No reembolsable: 10 % menos</div><div class="small muted">Si cancelás, no se devuelve el alquiler.</div></div></button></div>` : ''}
   <div class="sec">Comprobante</div>
   <div class="choices">${opt(S.comprobante === 'B', 'comp', 'B', 'Factura B')}${opt(S.comprobante === 'A', 'comp', 'A', 'Factura A')}</div>
   <p class="xs muted">El alquiler te lo factura el anfitrión; el cargo de servicio, ${APP_NAME}.</p>
-  <div class="note info"><i class="ti ti-shield-lock"></i><span>Tu pago queda retenido y el anfitrión lo cobra cuando retirás tus cosas (o cada 30 días en estadías largas). Cancelación ${sp.corta.toLowerCase()}.</span></div>
+  <div class="note info"><i class="ti ti-shield-lock"></i><span>Tu pago queda retenido y el anfitrión lo cobra cuando retirás tus cosas (o cada 30 días en estadías largas). ${S.noReemb ? 'Elegiste la tarifa no reembolsable.' : `Cancelación ${sp.corta.toLowerCase()}; además tenés 24 h para cancelar sin costo si reservás con 7 días de anticipación.`}</span></div>
   <div class="sticky"><button class="btn" data-act="pagar"><i class="ti ti-credit-card"></i>Pagar ${money(q.total)} con MercadoPago</button></div>`;
 });
 
@@ -396,12 +402,14 @@ reg('C-11', 'cliente', 'Check-in', () => `${topbar('Check-in')}
 reg('C-12', 'cliente', 'Check-out y calificación', () => `${topbar('Retirar y calificar')}
   <div class="card stack small"><div class="b">¿Cómo retirás?</div>
     <div class="choices">${opt(S.logistica === 'propia', 'log', 'propia', 'Lo retiro yo')}${opt(S.logistica === 'transporte', 'log', 'transporte', 'Contratar transporte')}</div>
-    <p class="xs muted" style="margin:0">Check-out de este espacio: ${space().hout}.</p></div>
+    ${S.logistica === 'transporte' ? `<div class="stack">${OPERADORES.filter((o) => o.max >= volumen()).map((o) => `<button class="radio" aria-pressed="${S.retiroOp === o.id}" data-act="rop" data-arg="${o.id}"><i class="ti ti-truck-delivery"></i><div style="flex:1"><div class="row between"><span class="b">${o.n}</span><span class="b">${money(o.flete + S.valor * 0.015)}</span></div><div class="xs muted">Flete ${money(o.flete)} + seguro ${money(S.valor * 0.015)} · lo lleva a tu casa</div></div></button>`).join('')}</div>` : ''}
+    <div class="grid2"><label class="f">Fecha<input class="inp" type="date" value="${S.hasta}"></label><label class="f">Franja<select class="inp"><option>10 a 12 h</option><option>14 a 16 h</option></select></label></div>
+    <p class="xs muted" style="margin:0">Check-out de este espacio: ${space().hout}. ${space().anf} confirma la fecha.</p></div>
   <div class="sec">¿Cómo te fue con ${space().anf}?</div>
   <div class="rate" role="radiogroup" aria-label="Calificación">${[1, 2, 3, 4, 5].map((n) => `<button class="${n <= S.rating ? 'on' : ''}" data-act="rate" data-arg="${n}" aria-label="${n} estrellas"><i class="ti ti-star"></i></button>`).join('')}</div>
   <label class="f" style="margin-top:8px">Comentario<textarea class="inp" rows="3" placeholder="La baulera estaba impecable y Laura muy atenta."></textarea></label>
   <p class="xs muted">Tu reseña y la de ${space().anf} se publican juntas, cuando ambos califican o a los 14 días.</p>
-  <div class="sticky"><button class="btn" data-act="cerrar">Confirmar retiro y enviar reseña</button></div>`);
+  <div class="sticky stack"><button class="btn" data-act="cerrar">Confirmar retiro y enviar reseña</button><button class="btn sec2" data-act="danoGuardado"><i class="ti ti-alert-triangle"></i>Informar un daño en el guardado</button></div>`);
 
 /* ---------- anfitrión ---------- */
 const hcap = () => { const h = S.host; const v = (+h.alto || 0) * (+h.ancho || 0) * (+h.prof || 0); return { v, L: Math.floor(v / BOX.L.vol), M: Math.floor(v / BOX.M.vol), S: Math.floor(v / BOX.S.vol) }; };
@@ -457,6 +465,8 @@ reg('A-04', 'anfitrion', 'Paso 4: precios y descuentos', () => {
   <p class="small muted" style="margin-top:0">Precio por día. Te mostramos lo que cobran otros espacios de Palermo.</p>
   ${warn ? '<div class="note" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i><span>Una caja más grande está más barata que una más chica. Revisá tus precios.</span></div>' : ''}
   <div class="card" style="padding:0 14px">${row('S', 'Caja S')}${row('M', 'Caja M')}${row('L', 'Caja L')}</div>
+  <div class="sec">Espacios cercanos</div>
+  <div class="card small">${SPACES.slice(1, 4).map((o) => `<div class="line"><span>${o.name}</span><span class="muted">S ${money(o.prices.S)} · M ${money(o.prices.M)} · L ${money(o.prices.L)}</span></div>`).join('')}</div>
   <div class="sec">Objetos que no van en caja</div>
   <div class="card" style="padding:0 14px">${Object.keys(OBJ).filter((k) => h.acepta[k]).map((k) => row(k, OBJ[k].n)).join('')}</div>
   <div class="sec">Descuentos</div>
@@ -482,6 +492,7 @@ reg('A-05', 'anfitrion', 'Paso 5: reserva, cancelación y reglas', () => {
   <div class="sec">Cancelación: 28 días o más</div>
   <div class="choices">${opt(h.larga === 'Firme', 'larga', 'Firme', 'Firme')}${opt(h.larga === 'Estricta', 'larga', 'Estricta', 'Estricta')}</div>
   <p class="small muted" style="margin:6px 0 0">${h.larga === 'Firme' ? 'Reembolso total hasta 30 días antes; después, el cliente paga los primeros 30 días.' : 'Reembolso total solo dentro de las 48 h de reservar y con 28 días de anticipación.'}</p>
+  <div class="card row between" style="margin-top:12px"><div><div class="b">Ofrecer tarifa no reembolsable</div><div class="xs muted">10 % de descuento adicional, sin reembolso si el cliente cancela.</div></div>${toggle(h.noReemb, 'hnr', 'Tarifa no reembolsable')}</div>
   <div class="sec">¿Qué objetos aceptás?</div>
   <div class="card stack">${Object.keys(OBJ).map((k) => `<div class="row between"><span class="row" style="gap:8px"><i class="ti ${OBJ[k].icon}"></i>${OBJ[k].n}</span>${toggle(h.acepta[k], 'acepta" data-arg="' + k, OBJ[k].n)}</div>`).join('')}</div>
   <div class="sec">No se permite</div>
@@ -524,7 +535,16 @@ reg('A-07', 'anfitrion', 'Dashboard', () => {
   <div class="grid2"><button class="btn sec2" data-go="A-04"><i class="ti ti-currency-dollar"></i>Precios</button><button class="btn sec2" data-act="pausar"><i class="ti ti-player-pause"></i>Pausar</button></div>`;
 });
 
-reg('A-08', 'anfitrion', 'Chat', () => chatScreen('Mensajes · Federico', false));
+reg('A-08', 'anfitrion', 'Mensajes', () => {
+  const item = (n, sub, tag, cls) => `<button class="space" data-act="conv" data-arg="${n}" style="grid-template-columns:44px 1fr"><span style="width:44px;height:44px;border-radius:50%;background:var(--kraft-2);display:grid;place-items:center;font-weight:700;color:var(--kraft-d)">${n[0]}</span><div><div class="row between"><span class="b">${n}</span><span class="chip ${cls}">${tag}</span></div><div class="xs muted">${sub}</div></div></button>`;
+  return `${topbar('Mensajes', false)}
+  <div class="sec" style="margin-top:0">Consultas de interesados</div>
+  <div class="stack">${item('Paula', '¿Aceptan una tabla de surf?', 'Sin responder', 'warn')}${item('Tomás', '¿Hay lugar desde el 1 de diciembre?', 'Sin responder', 'warn')}</div>
+  <div class="sec">Tus clientes</div>
+  <div class="stack">${item('Federico', 'Hola Laura, ¿la baulera tiene luz?', 'Reserva activa', 'ok')}${item('Camila', 'Paso el sábado a buscar una caja.', 'Reserva activa', 'ok')}</div>
+  <p class="xs muted">Responder rápido mejora tu posición en las búsquedas.</p>`;
+});
+reg('A-08c', 'anfitrion', 'Chat con un cliente', () => chatScreen(`Chat con ${S.conv}`, true));
 
 reg('A-09', 'anfitrion', 'Solicitudes y envíos', () => {
   const h = S.host;
@@ -541,16 +561,22 @@ reg('A-09', 'anfitrion', 'Solicitudes y envíos', () => {
   <div class="sticky grid2"><button class="btn danger" data-act="rechazar">Rechazar</button><button class="btn" data-act="aceptar">Aceptar</button></div>`
   : `<div class="sec">Envío de ingreso</div>
   <div class="card small"><div class="row between"><span class="b">Utilitario chico vía Zipnova</span>${h.envioOk ? '<span class="chip ok">Confirmado</span>' : '<span class="chip warn">A confirmar</span>'}</div><p class="muted" style="margin:4px 0 0">20 nov · 10 a 12 h · recepción dentro del espacio</p></div>
-  <div class="sticky stack">${h.envioOk ? '<button class="btn" data-go="A-10">Ir al check-in</button>' : '<button class="btn" data-act="okEnvio">Puedo recibir ese día</button><button class="btn sec2" data-act="otraFecha">Proponer otra fecha</button>'}</div>`}`;
+  <div class="sticky stack">${h.envioOk ? '<button class="btn" data-go="A-10">Ir al check-in</button>' : '<button class="btn" data-act="okEnvio">Puedo recibir ese día</button><button class="btn sec2" data-act="otraFecha">Proponer otra fecha</button>'}<button class="btn danger" data-act="hcancel">Cancelar esta reserva</button></div>`}`;
 });
 
 reg('A-10', 'anfitrion', 'Check-in y check-out', () => {
-  const k = S.host.checkin;
-  return `${topbar('Check-in de Federico')}
+  const k = S.host.checkin, o = S.host.checkout, etapa = S.host.etapa;
+  const sw = `<div class="choices" style="margin:-4px 0 12px">${opt(etapa === 'in', 'etapa', 'in', 'Check-in')}${opt(etapa === 'out', 'etapa', 'out', 'Check-out')}</div>`;
+  const qrStep = (st, act) => `<li><span class="dot ${st.qr ? 'done' : 'now'}">${st.qr ? '<i class="ti ti-check"></i>' : ''}</span><div style="flex:1"><div class="b">Escaneá el QR</div>${st.qr ? '<div class="xs muted">GRD-2401-K7 · reserva válida</div>' : `<button class="btn sec2" style="margin-top:8px" data-act="${act}"><i class="ti ti-scan"></i>Abrir cámara</button>`}</div></li>`;
+  const fotoStep = (st, act, t) => `<li><span class="dot ${st.fotos >= 3 ? 'done' : st.qr ? 'now' : ''}">${st.fotos >= 3 ? '<i class="ti ti-check"></i>' : ''}</span><div style="flex:1"><div class="b">${t}</div><div class="photos" style="margin-top:8px">${[0, 1, 2].map((i) => `<button class="photo ${i < st.fotos ? 'full' : ''}" data-act="${act}" aria-label="Foto"><i class="ti ${i < st.fotos ? 'ti-photo' : 'ti-camera-plus'}"></i></button>`).join('')}</div></div></li>`;
+  if (etapa === 'out') return `${topbar('Check-out de Federico')}${sw}
+  <ol class="timeline small" style="margin-top:4px">${qrStep(o, 'oscan')}${fotoStep(o, 'ofoto', 'Sacá fotos de lo que se retira')}</ol>
+  <div class="note info"><i class="ti ti-wallet"></i><span>Al confirmar el retiro liberamos tu cobro y se libera el espacio para nuevas reservas.</span></div>
+  <div class="sticky"><button class="btn" ${o.qr && o.fotos >= 3 ? 'data-act="finCheckout"' : 'aria-disabled="true" data-act="faltan"'}>Confirmar retiro</button></div>`;
+  return `${topbar('Check-in de Federico')}${sw}
   <ol class="timeline small" style="margin-top:4px">
-    <li><span class="dot ${k.qr ? 'done' : 'now'}">${k.qr ? '<i class="ti ti-check"></i>' : ''}</span><div style="flex:1"><div class="b">Escaneá el QR</div>${k.qr ? '<div class="xs muted">GRD-2401-K7 · reserva válida</div>' : '<button class="btn sec2" style="margin-top:8px" data-act="scan"><i class="ti ti-scan"></i>Abrir cámara</button>'}</div></li>
-    <li><span class="dot ${k.fotos >= 3 ? 'done' : k.qr ? 'now' : ''}">${k.fotos >= 3 ? '<i class="ti ti-check"></i>' : ''}</span><div style="flex:1"><div class="b">Sacá fotos de lo que entra</div><div class="photos" style="margin-top:8px">${[0, 1, 2].map((i) => `<button class="photo ${i < k.fotos ? 'full' : ''}" data-act="cfoto" aria-label="Foto"><i class="ti ${i < k.fotos ? 'ti-photo' : 'ti-camera-plus'}"></i></button>`).join('')}</div></div></li>
-    <li><span class="dot ${k.talles ? 'done' : ''}">${k.talles ? '<i class="ti ti-check"></i>' : ''}</span><div style="flex:1"><div class="b">Revisá los talles</div><div class="card small stack" style="margin-top:8px"><div class="row between"><span>4 cajas M</span>${toggle(k.talles, 'talles', 'Talles correctos')}</div><div class="row between"><span>2 cajas L</span>${toggle(k.talles, 'talles', 'Talles correctos')}</div><div class="row between"><span>1 bicicleta</span><span class="chip ok">OK</span></div></div><p class="xs muted">Si una caja es más grande que su talle, se recotiza al talle siguiente o la podés rechazar.</p></div></li>
+    ${qrStep(k, 'scan')}${fotoStep(k, 'cfoto', 'Sacá fotos de lo que entra')}
+    <li><span class="dot ${k.talles ? 'done' : ''}">${k.talles ? '<i class="ti ti-check"></i>' : ''}</span><div style="flex:1"><div class="b">Revisá los talles</div><div class="card small stack" style="margin-top:8px"><div class="row between"><span>4 cajas M</span>${toggle(k.talles, 'talles', 'Talles correctos')}</div><div class="row between"><span>2 cajas L</span>${toggle(k.talles, 'talles', 'Talles correctos')}</div><div class="row between"><span>1 bicicleta</span><span class="chip ok">OK</span></div></div><div class="grid2" style="margin-top:8px"><button class="btn sec2" data-act="recotizar">Caja más grande</button><button class="btn danger" data-act="rechazarCaja">Rechazar objeto</button></div></div></li>
   </ol>
   <div class="sticky stack"><button class="btn" ${k.qr && k.fotos >= 3 && k.talles ? 'data-act="finCheckin"' : 'aria-disabled="true" data-act="faltan"'}>Confirmar ingreso</button><button class="btn sec2" data-act="dano"><i class="ti ti-alert-triangle"></i>Registrar daño del traslado</button></div>`;
 });
@@ -574,14 +600,14 @@ reg('A-11', 'anfitrion', 'Cobros y calificación', () => `${topbar('Cobros', fal
 const ORDER = {
   compartidas: ['R-01', 'R-02'],
   cliente: ['C-01', 'C-02', 'C-03', 'C-04', 'C-05', 'C-06', 'C-07', 'C-08', 'C-09', 'C-10', 'C-10c', 'C-11', 'C-12'],
-  anfitrion: ['A-01', 'A-02', 'A-03', 'A-04', 'A-05', 'A-06', 'A-07', 'A-08', 'A-09', 'A-10', 'A-11'],
+  anfitrion: ['A-01', 'A-02', 'A-03', 'A-04', 'A-05', 'A-06', 'A-07', 'A-08', 'A-08c', 'A-09', 'A-10', 'A-11'],
 };
 const TABS = {
   cliente: [['C-01', 'ti-search', 'Explorar'], ['C-10', 'ti-package', 'Reservas'], ['C-10c', 'ti-message-circle', 'Mensajes']],
   anfitrion: [['A-07', 'ti-layout-dashboard', 'Panel'], ['A-08', 'ti-message-circle', 'Mensajes'], ['A-11', 'ti-wallet', 'Cobros'], ['A-01', 'ti-home-edit', 'Publicación']],
 };
 const TABS_ON = ['C-01', 'C-04', 'C-10', 'C-10c', 'A-07', 'A-08', 'A-11'];
-const codeOf = (id) => id === 'C-10c' ? 'C-10' : id;
+const codeOf = (id) => id.replace(/c$/, '');
 
 function go(id, push = true) {
   const sc = SCREENS[id];
@@ -632,7 +658,7 @@ const ACT = {
   gocheckin: () => { S.reserva = 'guardado'; go('C-11'); },
   nocheck: () => toast(S.reserva === 'pendiente' ? 'Primero el anfitrión tiene que aceptar.' : 'El check-in ya se hizo.'),
   extender: () => toast(`Podés extender hasta el ${S.sinFecha ? '—' : '20 ene'}: el espacio sigue teniendo lugar.`),
-  cancelar: () => toast(`Política ${space().corta.toLowerCase()}: hoy te devolvemos el 100 %.`),
+  cancelar: () => toast(S.noReemb ? 'Tu tarifa es no reembolsable: si cancelás, no se devuelve el alquiler.' : `Estás dentro de las 24 h de tu reserva: te devolvemos el 100 %. Después rige la política ${space().corta.toLowerCase()}.`),
   reclamo: () => toast('Abrimos un reclamo al seguro del envío.'),
   rate: (n) => { S.rating = +n; render(); },
   hrate: (n) => { S.hostRating = +n; render(); toast('Reseña guardada'); },
@@ -663,6 +689,18 @@ const ACT = {
   finCheckin: () => { toast('Ingreso registrado. Avisamos a Federico.'); go('A-07'); },
   dano: () => toast('Registramos el daño y abrimos el reclamo al seguro del envío.'),
   factura: () => toast('Factura cargada'),
+  nr: (v) => { S.noReemb = v === '1'; render(); },
+  hnr: () => { S.host.noReemb = !S.host.noReemb; render(); },
+  rop: (v) => { S.retiroOp = v; render(); },
+  danoGuardado: () => toast('Abrimos un reclamo al seguro del guardado. El cobro del anfitrión queda en suspenso.'),
+  conv: (n) => { S.conv = n; go('A-08c'); },
+  hcancel: () => toast('Si cancelás, pagás una penalidad del 20 % del total y el cliente recibe el reembolso completo.'),
+  etapa: (v) => { S.host.etapa = v; render(); },
+  oscan: () => { S.host.checkout.qr = true; render(); },
+  ofoto: () => { S.host.checkout.fotos = Math.min(3, S.host.checkout.fotos + 1); render(); },
+  finCheckout: () => { toast('Retiro registrado. Liberamos tu cobro.'); go('A-11'); },
+  recotizar: () => toast('Le avisamos a Federico: esa caja se cobra como del talle siguiente.'),
+  rechazarCaja: () => toast('Objeto rechazado. Federico puede llevárselo o quitarlo de la reserva.'),
 };
 
 document.addEventListener('click', (e) => {
